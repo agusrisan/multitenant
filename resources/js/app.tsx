@@ -1,18 +1,31 @@
+/// <reference types="vite/client" />
+import './bootstrap'
+import { createRoot } from 'react-dom/client'
+import { createInertiaApp } from '@inertiajs/react'
 import '../css/app.css'
 
-function App() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-foreground mb-4">
-          Multitenant Auth App
-        </h1>
-        <p className="text-muted-foreground">
-          Phase 1: Project Setup Complete! 🎉
-        </p>
-      </div>
-    </div>
-  )
-}
+const appName = 'Auth App'
 
-export default App
+createInertiaApp({
+  title: (title) => title ? `${title} - ${appName}` : appName,
+
+  resolve: (name) => {
+    const pages = import.meta.glob('./pages/**/*.tsx', { eager: true })
+    const page = pages[`./pages/${name}.tsx`]
+
+    if (!page) {
+      throw new Error(`Page not found: ${name}`)
+    }
+
+    return page as any
+  },
+
+  setup({ el, App, props }) {
+    const root = createRoot(el)
+    root.render(<App {...props} />)
+  },
+
+  progress: {
+    color: '#4B5563',
+  },
+})
