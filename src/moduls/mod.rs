@@ -5,7 +5,7 @@
 /// and interface layers (web/api).
 
 pub mod auth;
+pub mod user;
 
 // Future modules:
-// pub mod user;
 // pub mod organization;

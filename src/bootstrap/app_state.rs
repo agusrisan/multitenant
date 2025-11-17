@@ -1,11 +1,15 @@
 use crate::config::Config;
 use crate::moduls::auth::application::{
-    RegisterUserUseCase, LoginUserUseCase, LogoutUserUseCase, RefreshTokenUseCase,
-    AuthConfig, RefreshConfig,
+    AuthConfig, LoginUserUseCase, LogoutUserUseCase, RefreshConfig, RefreshTokenUseCase,
+    RegisterUserUseCase,
 };
 use crate::moduls::auth::infra::{
-    PostgresUserRepository, PostgresSessionRepository, PostgresTokenRepository,
+    PostgresSessionRepository, PostgresTokenRepository, PostgresUserRepository,
 };
+use crate::moduls::user::application::{
+    ChangePasswordUseCase, GetProfileUseCase, UpdateProfileUseCase,
+};
+use crate::moduls::user::infra::PostgresUserProfileRepository;
 use sqlx::PgPool;
 use std::sync::Arc;
 
@@ -35,6 +39,11 @@ pub struct AppState {
     pub login_user_use_case: Arc<LoginUserUseCase>,
     pub logout_user_use_case: Arc<LogoutUserUseCase>,
     pub refresh_token_use_case: Arc<RefreshTokenUseCase>,
+
+    /// User module use cases
+    pub get_profile_use_case: Arc<GetProfileUseCase>,
+    pub update_profile_use_case: Arc<UpdateProfileUseCase>,
+    pub change_password_use_case: Arc<ChangePasswordUseCase>,
 }
 
 impl AppState {
@@ -50,6 +59,7 @@ impl AppState {
         let user_repo = Arc::new(PostgresUserRepository::new(db.clone()));
         let session_repo = Arc::new(PostgresSessionRepository::new(db.clone()));
         let token_repo = Arc::new(PostgresTokenRepository::new(db.clone()));
+        let profile_repo = Arc::new(PostgresUserProfileRepository::new(db.clone()));
 
         // Create auth config
         let auth_config = AuthConfig {
@@ -85,6 +95,13 @@ impl AppState {
             refresh_config,
         ));
 
+        // Create user module use cases
+        let get_profile_use_case = Arc::new(GetProfileUseCase::new(profile_repo.clone()));
+
+        let update_profile_use_case = Arc::new(UpdateProfileUseCase::new(profile_repo.clone()));
+
+        let change_password_use_case = Arc::new(ChangePasswordUseCase::new(user_repo.clone()));
+
         Self {
             db,
             config,
@@ -95,6 +112,9 @@ impl AppState {
             login_user_use_case,
             logout_user_use_case,
             refresh_token_use_case,
+            get_profile_use_case,
+            update_profile_use_case,
+            change_password_use_case,
         }
     }
 

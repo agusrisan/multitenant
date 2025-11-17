@@ -7,7 +7,7 @@ type StrengthLevel = {
   label: 'weak' | 'medium' | 'strong'
 }
 
-export function PasswordStrength({ password }: PasswordStrengthProps) {
+export default function PasswordStrength({ password }: PasswordStrengthProps) {
   const strength = calculateStrength(password)
 
   const colors = {
@@ -41,3 +41,6 @@ function calculateStrength(password: string): StrengthLevel {
   return { level: 3, label: 'strong' }
   // Add more sophisticated logic (uppercase, numbers, symbols)
 }
+
+// Named export for backward compatibility
+export { PasswordStrength }

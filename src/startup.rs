@@ -1,5 +1,6 @@
 use crate::bootstrap::AppState;
-use crate::moduls::auth::{auth_web_routes, auth_api_routes};
+use crate::moduls::auth::{auth_api_routes, auth_web_routes};
+use crate::moduls::user::{user_api_routes, user_web_routes};
 use axum::{
     extract::State,
     http::StatusCode,
@@ -33,6 +34,9 @@ pub async fn build_app(state: AppState) -> Router {
         // Mount authentication routes
         .nest("/web/auth", auth_web_routes())
         .nest("/api/auth", auth_api_routes())
+        // Mount user module routes
+        .nest("/web/user", user_web_routes())
+        .nest("/api/user", user_api_routes())
         .with_state(state.clone())
         // Add CORS middleware
         .layer(CorsLayer::permissive()) // TODO: Configure properly for production
