@@ -1,0 +1,30 @@
+# Rust
+/target
+Cargo.lock
+
+# Environment
+.env
+
+# IDE
+.idea/workspace.xml
+.idea/tasks.xml
+.vscode/
+
+# Frontend
+node_modules/
+resources/dist/
+resources/.vite/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SQLx
+sqlx-data.json
+
+# Build artifacts
+*.wasm
+*.pdb
