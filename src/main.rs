@@ -3,6 +3,7 @@ mod config;
 mod shared;
 mod startup;
 mod moduls;
+mod jobs;
 
 use bootstrap::{app_state::AppState, database::init_database, telemetry::init_telemetry};
 use config::Config;
@@ -49,7 +50,20 @@ async fn main() -> anyhow::Result<()> {
 
     // 7. Build Axum application with all routes and middleware
     tracing::info!("Building application...");
-    let app = startup::build_app(state).await;
+    let app = startup::build_app(state.clone()).await;
+
+    // 7.5. Spawn background cleanup jobs
+    tracing::info!("Starting background cleanup jobs...");
+    let db_for_session_cleanup = state.db().clone();
+    tokio::spawn(async move {
+        jobs::session_cleanup_job(db_for_session_cleanup).await;
+    });
+
+    let db_for_token_cleanup = state.db().clone();
+    tokio::spawn(async move {
+        jobs::token_cleanup_job(db_for_token_cleanup).await;
+    });
+    tracing::info!("Background cleanup jobs started successfully");
 
     // 8. Parse server address
     let addr = SocketAddr::from((

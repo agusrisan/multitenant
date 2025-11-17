@@ -44,7 +44,10 @@ pub async fn init_database(config: &DatabaseConfig) -> Result<PgPool, sqlx::Erro
 
     let pool = PgPoolOptions::new()
         .max_connections(config.max_connections)
+        .min_connections(5) // Keep minimum connections alive
         .acquire_timeout(Duration::from_secs(config.connect_timeout))
+        .idle_timeout(Some(Duration::from_secs(600))) // 10 minutes
+        .max_lifetime(Some(Duration::from_secs(1800))) // 30 minutes
         .connect(&config.url)
         .await?;
 

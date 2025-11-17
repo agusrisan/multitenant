@@ -1,0 +1,44 @@
+# Git
+.git
+.gitignore
+
+# Rust
+target/
+**/*.rs.bk
+*.pdb
+
+# Node
+node_modules/
+resources/node_modules/
+resources/dist/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Documentation
+docs/
+todo/
+README.md
+
+# CI/CD
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+tests/
+coverage/

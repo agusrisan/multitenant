@@ -9,8 +9,11 @@ use axum::{
     Router,
 };
 use serde::Serialize;
+use axum::http::{header, HeaderValue, Method};
 use tower_http::{
+    compression::CompressionLayer,
     cors::CorsLayer,
+    set_header::SetResponseHeaderLayer,
     trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer},
     LatencyUnit,
 };
@@ -27,6 +30,25 @@ struct HealthResponse {
 pub async fn build_app(state: AppState) -> Router {
     tracing::info!("Building application router...");
 
+    // Configure CORS - restrict origins in production
+    let allowed_origins = std::env::var("ALLOWED_ORIGINS")
+        .unwrap_or_else(|_| "http://localhost:3000,http://localhost:5173".to_string());
+
+    let origins: Vec<HeaderValue> = allowed_origins
+        .split(',')
+        .filter_map(|origin| origin.trim().parse().ok())
+        .collect();
+
+    let cors = if origins.is_empty() {
+        CorsLayer::permissive()
+    } else {
+        CorsLayer::new()
+            .allow_origin(origins)
+            .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+            .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION])
+            .allow_credentials(true)
+    };
+
     // Create the main router
     let app = Router::new()
         // Health check endpoint
@@ -38,8 +60,27 @@ pub async fn build_app(state: AppState) -> Router {
         .nest("/web/user", user_web_routes())
         .nest("/api/user", user_api_routes())
         .with_state(state.clone())
+        // Add security headers
+        .layer(SetResponseHeaderLayer::overriding(
+            header::X_CONTENT_TYPE_OPTIONS,
+            HeaderValue::from_static("nosniff"),
+        ))
+        .layer(SetResponseHeaderLayer::overriding(
+            header::X_FRAME_OPTIONS,
+            HeaderValue::from_static("DENY"),
+        ))
+        .layer(SetResponseHeaderLayer::overriding(
+            header::HeaderName::from_static("x-xss-protection"),
+            HeaderValue::from_static("1; mode=block"),
+        ))
+        .layer(SetResponseHeaderLayer::overriding(
+            header::STRICT_TRANSPORT_SECURITY,
+            HeaderValue::from_static("max-age=31536000; includeSubDomains"),
+        ))
         // Add CORS middleware
-        .layer(CorsLayer::permissive()) // TODO: Configure properly for production
+        .layer(cors)
+        // Add compression middleware
+        .layer(CompressionLayer::new())
         // Add tracing middleware
         .layer(
             TraceLayer::new_for_http()

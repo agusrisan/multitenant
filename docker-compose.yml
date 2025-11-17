@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:18-alpine
+    container_name: multitenant_postgres
+    environment:
+      POSTGRES_DB: multitenant_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - multitenant_network
+
+  # Application (Production)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: multitenant_app
+    environment:
+      DATABASE_URL: postgres://postgres:password@postgres:5432/multitenant_db
+      HOST: 0.0.0.0
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY:-900}
+      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-604800}
+      SESSION_SECRET: ${SESSION_SECRET}
+      SESSION_EXPIRY: ${SESSION_EXPIRY:-86400}
+      CSRF_SECRET: ${CSRF_SECRET}
+      RUST_LOG: ${RUST_LOG:-info}
+      RUST_ENV: ${RUST_ENV:-production}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - multitenant_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  multitenant_network:
+    driver: bridge
