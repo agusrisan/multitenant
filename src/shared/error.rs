@@ -52,6 +52,41 @@ struct ErrorDetail {
 }
 
 impl AppError {
+    /// Create a validation error
+    pub fn validation(msg: impl Into<String>) -> Self {
+        AppError::Validation(msg.into())
+    }
+
+    /// Create an authentication error
+    pub fn authentication(msg: impl Into<String>) -> Self {
+        AppError::Authentication(msg.into())
+    }
+
+    /// Create an authorization error
+    pub fn authorization(msg: impl Into<String>) -> Self {
+        AppError::Authorization(msg.into())
+    }
+
+    /// Create a not found error
+    pub fn not_found(msg: impl Into<String>) -> Self {
+        AppError::NotFound(msg.into())
+    }
+
+    /// Create a conflict error
+    pub fn conflict(msg: impl Into<String>) -> Self {
+        AppError::Conflict(msg.into())
+    }
+
+    /// Create an internal error
+    pub fn internal(msg: impl Into<String>) -> Self {
+        AppError::Internal(msg.into())
+    }
+
+    /// Create a bad request error
+    pub fn bad_request(msg: impl Into<String>) -> Self {
+        AppError::BadRequest(msg.into())
+    }
+
     /// Get HTTP status code for this error
     fn status_code(&self) -> StatusCode {
         match self {

@@ -2,6 +2,7 @@ mod bootstrap;
 mod config;
 mod shared;
 mod startup;
+mod moduls;
 
 use bootstrap::{app_state::AppState, database::init_database, telemetry::init_telemetry};
 use config::Config;

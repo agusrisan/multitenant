@@ -1,4 +1,5 @@
 use crate::bootstrap::AppState;
+use crate::moduls::auth::{auth_web_routes, auth_api_routes};
 use axum::{
     extract::State,
     http::StatusCode,
@@ -29,7 +30,9 @@ pub async fn build_app(state: AppState) -> Router {
     let app = Router::new()
         // Health check endpoint
         .route("/health", get(health_check))
-        // Add more routes here in future phases
+        // Mount authentication routes
+        .nest("/web/auth", auth_web_routes())
+        .nest("/api/auth", auth_api_routes())
         .with_state(state.clone())
         // Add CORS middleware
         .layer(CorsLayer::permissive()) // TODO: Configure properly for production

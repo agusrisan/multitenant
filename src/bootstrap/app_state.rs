@@ -1,5 +1,13 @@
 use crate::config::Config;
+use crate::moduls::auth::application::{
+    RegisterUserUseCase, LoginUserUseCase, LogoutUserUseCase, RefreshTokenUseCase,
+    AuthConfig, RefreshConfig,
+};
+use crate::moduls::auth::infra::{
+    PostgresUserRepository, PostgresSessionRepository, PostgresTokenRepository,
+};
 use sqlx::PgPool;
+use std::sync::Arc;
 
 /// Shared application state
 ///
@@ -21,10 +29,16 @@ pub struct AppState {
 
     /// CSRF secret for token generation
     pub csrf_secret: String,
+
+    /// Auth use cases
+    pub register_user_use_case: Arc<RegisterUserUseCase>,
+    pub login_user_use_case: Arc<LoginUserUseCase>,
+    pub logout_user_use_case: Arc<LogoutUserUseCase>,
+    pub refresh_token_use_case: Arc<RefreshTokenUseCase>,
 }
 
 impl AppState {
-    /// Create a new AppState instance
+    /// Create a new AppState instance with repositories and use cases
     pub fn new(
         db: PgPool,
         config: Config,
@@ -32,12 +46,55 @@ impl AppState {
         session_secret: String,
         csrf_secret: String,
     ) -> Self {
+        // Create repositories
+        let user_repo = Arc::new(PostgresUserRepository::new(db.clone()));
+        let session_repo = Arc::new(PostgresSessionRepository::new(db.clone()));
+        let token_repo = Arc::new(PostgresTokenRepository::new(db.clone()));
+
+        // Create auth config
+        let auth_config = AuthConfig {
+            session_ttl_seconds: config.session.expiry as i64,
+            jwt_access_ttl_seconds: config.jwt.access_expiry as i64,
+            jwt_refresh_ttl_seconds: config.jwt.refresh_expiry as i64,
+        };
+
+        let refresh_config = RefreshConfig {
+            jwt_secret: jwt_secret.clone(),
+            access_ttl_seconds: config.jwt.access_expiry as i64,
+            refresh_ttl_seconds: config.jwt.refresh_expiry as i64,
+        };
+
+        // Create use cases
+        let register_user_use_case = Arc::new(RegisterUserUseCase::new(user_repo.clone()));
+
+        let login_user_use_case = Arc::new(LoginUserUseCase::new(
+            user_repo.clone(),
+            session_repo.clone(),
+            token_repo.clone(),
+            jwt_secret.clone(),
+            auth_config,
+        ));
+
+        let logout_user_use_case = Arc::new(LogoutUserUseCase::new(
+            session_repo.clone(),
+            token_repo.clone(),
+        ));
+
+        let refresh_token_use_case = Arc::new(RefreshTokenUseCase::new(
+            token_repo.clone(),
+            refresh_config,
+        ));
+
         Self {
             db,
             config,
             jwt_secret,
             session_secret,
             csrf_secret,
+            register_user_use_case,
+            login_user_use_case,
+            logout_user_use_case,
+            refresh_token_use_case,
         }
     }
 
