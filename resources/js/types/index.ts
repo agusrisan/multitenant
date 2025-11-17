@@ -31,3 +31,19 @@ export interface InertiaSharedProps {
     user: User | null
   }
 }
+
+export interface LoginProps {
+  errors?: Record<string, string[]>
+  flash?: {
+    error?: string
+    success?: string
+  }
+}
+
+export interface RegisterProps {
+  errors?: Record<string, string[]>
+  flash?: {
+    error?: string
+    success?: string
+  }
+}

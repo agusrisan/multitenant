@@ -55,4 +55,10 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
+  *:focus-visible {
+    outline: none;
+    ring: 2px;
+    ring-color: hsl(var(--ring));
+    ring-offset: 2px;
+  }
 }
