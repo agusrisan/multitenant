@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="EMPTY_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/crates/presentation/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/shared-application/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/shared-domain/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/shared-infrastructure/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/auth/application/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/auth/domain/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/auth/infrastructure/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/auth/presentation/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/user/application/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/user/domain/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/user/infrastructure/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/user/presentation/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
