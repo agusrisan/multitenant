@@ -1,8 +1,7 @@
-use multitenant::bootstrap::{database, AppState};
+use multitenant::bootstrap::{database::DatabaseConfig, AppState};
 use multitenant::config::{Config, CsrfConfig, JwtConfig, ServerConfig, SessionConfig};
 use multitenant::startup::build_app;
 use sqlx::PgPool;
-use std::net::SocketAddr;
 
 /// Test application instance for integration testing
 pub struct TestApp {
@@ -14,8 +13,8 @@ pub struct TestApp {
 impl TestApp {
     /// Spawn a new test application instance
     pub async fn spawn() -> Self {
-        // Load test environment variables
-        dotenvy::dotenv().ok();
+        // Load test environment variables from .env.test
+        dotenvy::from_filename(".env.test").ok();
 
         // Use test database URL
         let database_url = std::env::var("DATABASE_URL")
@@ -37,9 +36,10 @@ impl TestApp {
 
         // Create test configuration
         let config = Config {
-            database: database::DatabaseConfig {
+            database: DatabaseConfig {
                 url: database_url,
                 max_connections: 5,
+                connect_timeout: 3,
             },
             server: ServerConfig {
                 host: "127.0.0.1".to_string(),
@@ -89,9 +89,9 @@ impl TestApp {
 
         let address = format!("http://{}", address);
 
-        // Create HTTP client
+        // Create HTTP client with cookie store
         let client = reqwest::Client::builder()
-            .cookie_store(true) // Enable cookie handling for session tests
+            .cookie_provider(std::sync::Arc::new(reqwest::cookie::Jar::default()))
             .build()
             .expect("Failed to create HTTP client");
 
