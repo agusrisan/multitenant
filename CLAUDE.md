@@ -28,9 +28,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Database
 ```bash
-# Start PostgreSQL (Docker)
-docker-compose up -d postgres
-
 # Run migrations
 sqlx migrate run
 
