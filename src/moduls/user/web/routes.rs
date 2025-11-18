@@ -1,6 +1,6 @@
 use crate::bootstrap::AppState;
 use axum::{
-    routing::{get, post},
+    routing::get,
     Router,
 };
 

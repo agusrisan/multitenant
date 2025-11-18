@@ -3,6 +3,7 @@ use crate::moduls::auth::application::{
     RegisterUserCommand, LoginApiCommand, RefreshTokenCommand,
 };
 use crate::moduls::auth::domain::{TokenPair, UserDto};
+use crate::moduls::auth::infra::TokenRepository;
 use crate::shared::AppError;
 use axum::{
     extract::State,
@@ -55,17 +56,31 @@ pub struct UserResponse {
 }
 
 /// POST /api/auth/register
-/// Register a new user
+/// Register a new user and return tokens for immediate login
 pub async fn register(
     State(state): State<AppState>,
     Json(payload): Json<RegisterUserCommand>,
-) -> Result<(StatusCode, Json<UserResponse>), AppError> {
+) -> Result<(StatusCode, Json<TokenResponse>), AppError> {
+    // Register the user
     let user = state.register_user_use_case.execute(payload).await?;
 
-    Ok((
-        StatusCode::CREATED,
-        Json(UserResponse { user }),
-    ))
+    // Generate token pair for immediate login
+    let (token_pair, access_token, refresh_token) = TokenPair::generate(
+        user.id,
+        &state.jwt_secret,
+        state.config.jwt.access_expiry as i64,
+        state.config.jwt.refresh_expiry as i64,
+    )?;
+
+    // Save tokens to database for revocation support
+    state.token_repo.save(&access_token).await?;
+    state.token_repo.save(&refresh_token).await?;
+
+    // Build response with tokens
+    let mut response = TokenResponse::from(token_pair);
+    response.user = user;
+
+    Ok((StatusCode::CREATED, Json(response)))
 }
 
 /// POST /api/auth/login
@@ -104,7 +119,7 @@ pub async fn refresh(
 /// Logout and revoke all tokens
 /// Requires authentication (JWT middleware)
 pub async fn logout(
-    State(state): State<AppState>,
+    State(_state): State<AppState>,
     // TODO: Extract user from JWT middleware
     // AuthUser(user): AuthUser,
 ) -> Result<StatusCode, AppError> {

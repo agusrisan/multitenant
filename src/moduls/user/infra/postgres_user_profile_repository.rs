@@ -81,7 +81,7 @@ impl UserProfileRepository for PostgresUserProfileRepository {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     // Note: Integration tests should be in tests/ directory with actual database
     // These are just placeholder unit tests for the structure

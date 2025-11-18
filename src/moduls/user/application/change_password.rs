@@ -12,7 +12,8 @@ pub struct ChangePasswordCommand {
     #[validate(length(min = 8, message = "Password must be at least 8 characters"))]
     pub new_password: String,
 
-    pub new_password_confirmation: String,
+    #[serde(default)]
+    pub new_password_confirmation: Option<String>,
 }
 
 /// Change Password Use Case
@@ -32,9 +33,11 @@ impl ChangePasswordUseCase {
         cmd.validate()
             .map_err(|e| AppError::Validation(e.to_string()))?;
 
-        // 2. Check password confirmation matches
-        if cmd.new_password != cmd.new_password_confirmation {
-            return Err(AppError::Validation("Passwords do not match".into()));
+        // 2. Check password confirmation matches (if provided)
+        if let Some(ref confirmation) = cmd.new_password_confirmation {
+            if &cmd.new_password != confirmation {
+                return Err(AppError::Validation("Passwords do not match".into()));
+            }
         }
 
         // 3. Load user
@@ -81,12 +84,12 @@ mod tests {
             Ok(self.user.clone())
         }
 
-        async fn save(&self, _user: &User) -> AppResult<()> {
-            Ok(())
+        async fn save(&self, user: &User) -> AppResult<User> {
+            Ok(user.clone())
         }
 
-        async fn update(&self, _user: &User) -> AppResult<()> {
-            Ok(())
+        async fn update(&self, user: &User) -> AppResult<User> {
+            Ok(user.clone())
         }
 
         async fn delete(&self, _id: UserId) -> AppResult<()> {
@@ -96,10 +99,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_change_password_success() {
-        let user_id = UserId::new_v7();
-        let email = Email::new("test@example.com".to_string()).unwrap();
-        let mut user = User::new(user_id, "Test User".to_string(), email);
-        user.change_password("oldpassword123").unwrap();
+        let email = Email::new("test@example.com").unwrap();
+        let user = User::new(email, "oldpassword123", "Test User".to_string()).unwrap();
+        let user_id = user.id;
 
         let repo = Arc::new(MockUserRepository { user: Some(user) });
         let use_case = ChangePasswordUseCase::new(repo);
@@ -107,7 +109,7 @@ mod tests {
         let cmd = ChangePasswordCommand {
             current_password: "oldpassword123".to_string(),
             new_password: "newpassword123".to_string(),
-            new_password_confirmation: "newpassword123".to_string(),
+            new_password_confirmation: Some("newpassword123".to_string()),
         };
 
         let result = use_case.execute(user_id, cmd).await;
@@ -116,10 +118,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_change_password_mismatch_fails() {
-        let user_id = UserId::new_v7();
-        let email = Email::new("test@example.com".to_string()).unwrap();
-        let mut user = User::new(user_id, "Test User".to_string(), email);
-        user.change_password("oldpassword123").unwrap();
+        let email = Email::new("test@example.com").unwrap();
+        let user = User::new(email, "oldpassword123", "Test User".to_string()).unwrap();
+        let user_id = user.id;
 
         let repo = Arc::new(MockUserRepository { user: Some(user) });
         let use_case = ChangePasswordUseCase::new(repo);
@@ -127,7 +128,7 @@ mod tests {
         let cmd = ChangePasswordCommand {
             current_password: "oldpassword123".to_string(),
             new_password: "newpassword123".to_string(),
-            new_password_confirmation: "differentpassword".to_string(),
+            new_password_confirmation: Some("differentpassword".to_string()),
         };
 
         let result = use_case.execute(user_id, cmd).await;
@@ -136,10 +137,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_change_password_wrong_current_fails() {
-        let user_id = UserId::new_v7();
-        let email = Email::new("test@example.com".to_string()).unwrap();
-        let mut user = User::new(user_id, "Test User".to_string(), email);
-        user.change_password("oldpassword123").unwrap();
+        let email = Email::new("test@example.com").unwrap();
+        let user = User::new(email, "oldpassword123", "Test User".to_string()).unwrap();
+        let user_id = user.id;
 
         let repo = Arc::new(MockUserRepository { user: Some(user) });
         let use_case = ChangePasswordUseCase::new(repo);
@@ -147,7 +147,7 @@ mod tests {
         let cmd = ChangePasswordCommand {
             current_password: "wrongpassword".to_string(),
             new_password: "newpassword123".to_string(),
-            new_password_confirmation: "newpassword123".to_string(),
+            new_password_confirmation: Some("newpassword123".to_string()),
         };
 
         let result = use_case.execute(user_id, cmd).await;

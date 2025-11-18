@@ -194,7 +194,7 @@ impl LoginUserUseCase {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     // Tests would require mock repositories
     // Skipping for brevity - similar to RegisterUser tests

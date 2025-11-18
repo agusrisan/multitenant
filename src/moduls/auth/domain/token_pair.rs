@@ -297,7 +297,7 @@ mod tests {
     #[test]
     fn test_jwt_token_expiration() {
         let user_id = new_id();
-        let (_, mut access_token, _) = TokenPair::generate(user_id, TEST_SECRET, -1, 604800).unwrap();
+        let (_, access_token, _) = TokenPair::generate(user_id, TEST_SECRET, -1, 604800).unwrap();
 
         // Token should be expired (TTL = -1 second)
         assert!(access_token.is_expired());

@@ -6,7 +6,7 @@ CREATE TYPE token_type AS ENUM ('access', 'refresh');
 
 -- Create jwt_tokens table
 CREATE TABLE jwt_tokens (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v7(),
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token_type token_type NOT NULL,
     jti UUID NOT NULL UNIQUE,  -- JWT ID for revocation

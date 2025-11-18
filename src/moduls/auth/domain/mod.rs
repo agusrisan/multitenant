@@ -9,7 +9,7 @@ pub mod token_pair;
 pub mod value_objects;
 
 // Re-export main types for convenience
-pub use user::{User, UserDto, CreateUserDto};
-pub use session::{Session, SessionCookie};
-pub use token_pair::{TokenPair, JwtToken, TokenType, Claims};
-pub use value_objects::{Email, PasswordHash, CsrfToken};
+pub use user::{User, UserDto};
+pub use session::Session;
+pub use token_pair::{TokenPair, JwtToken};
+pub use value_objects::Email;

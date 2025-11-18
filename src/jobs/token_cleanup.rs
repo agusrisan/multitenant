@@ -39,7 +39,7 @@ async fn cleanup_expired_tokens(pool: &PgPool) -> Result<u64, sqlx::Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     #[tokio::test]
     async fn test_cleanup_expired_tokens() {

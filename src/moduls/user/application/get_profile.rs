@@ -27,6 +27,7 @@ impl GetProfileUseCase {
 mod tests {
     use super::*;
     use crate::moduls::user::domain::UserProfile;
+    use crate::shared::types::new_id;
     use async_trait::async_trait;
 
     struct MockUserProfileRepository {
@@ -46,7 +47,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_profile_success() {
-        let user_id = UserId::new_v7();
+        let user_id = new_id();
         let profile = UserProfile {
             user_id,
             name: "Test User".to_string(),
@@ -71,7 +72,7 @@ mod tests {
         let repo = Arc::new(MockUserProfileRepository { profile: None });
         let use_case = GetProfileUseCase::new(repo);
 
-        let result = use_case.execute(UserId::new_v7()).await;
+        let result = use_case.execute(new_id()).await;
         assert!(result.is_err());
     }
 }

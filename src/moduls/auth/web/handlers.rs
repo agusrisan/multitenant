@@ -82,7 +82,7 @@ pub async fn handle_register(
 /// POST /web/auth/logout
 /// Logout user (delete session)
 pub async fn handle_logout(
-    State(state): State<AppState>,
+    State(_state): State<AppState>,
     // TODO: Extract session from middleware
 ) -> Result<StatusCode, AppError> {
     // TODO: Get session_id from authenticated session

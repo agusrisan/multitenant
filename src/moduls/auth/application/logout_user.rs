@@ -81,7 +81,7 @@ impl LogoutUserUseCase {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     // Tests would require mock repositories
     // Skipping for brevity

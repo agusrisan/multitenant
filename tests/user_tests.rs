@@ -25,6 +25,7 @@ async fn register_and_login(app: &TestApp) -> String {
 }
 
 #[tokio::test]
+#[ignore = "integration test requires database and --test-threads=1"]
 async fn test_get_profile_success() {
     let app = TestApp::spawn().await;
     let access_token = register_and_login(&app).await;
@@ -49,6 +50,7 @@ async fn test_get_profile_success() {
 }
 
 #[tokio::test]
+#[ignore = "integration test requires database and --test-threads=1"]
 async fn test_get_profile_unauthorized() {
     let app = TestApp::spawn().await;
 
@@ -61,6 +63,7 @@ async fn test_get_profile_unauthorized() {
 }
 
 #[tokio::test]
+#[ignore = "integration test requires database and --test-threads=1"]
 async fn test_update_profile_success() {
     let app = TestApp::spawn().await;
     let access_token = register_and_login(&app).await;
@@ -90,6 +93,7 @@ async fn test_update_profile_success() {
 }
 
 #[tokio::test]
+#[ignore = "integration test requires database and --test-threads=1"]
 async fn test_update_profile_invalid_name() {
     let app = TestApp::spawn().await;
     let access_token = register_and_login(&app).await;
@@ -113,6 +117,7 @@ async fn test_update_profile_invalid_name() {
 }
 
 #[tokio::test]
+#[ignore = "integration test requires database and --test-threads=1"]
 async fn test_change_password_success() {
     let app = TestApp::spawn().await;
     let access_token = register_and_login(&app).await;
@@ -149,6 +154,7 @@ async fn test_change_password_success() {
 }
 
 #[tokio::test]
+#[ignore = "integration test requires database and --test-threads=1"]
 async fn test_change_password_wrong_current() {
     let app = TestApp::spawn().await;
     let access_token = register_and_login(&app).await;
@@ -172,6 +178,7 @@ async fn test_change_password_wrong_current() {
 }
 
 #[tokio::test]
+#[ignore = "integration test requires database and --test-threads=1"]
 async fn test_change_password_weak_new_password() {
     let app = TestApp::spawn().await;
     let access_token = register_and_login(&app).await;
@@ -195,6 +202,7 @@ async fn test_change_password_weak_new_password() {
 }
 
 #[tokio::test]
+#[ignore = "integration test requires database and --test-threads=1"]
 async fn test_change_password_unauthorized() {
     let app = TestApp::spawn().await;
 

@@ -1,10 +1,8 @@
 use crate::bootstrap::AppState;
-use crate::moduls::user::application::{
-    ChangePasswordCommand, ChangePasswordUseCase, GetProfileUseCase, UpdateProfileCommand,
-    UpdateProfileUseCase,
-};
+use crate::moduls::auth::api::middleware::AuthenticatedUser;
+use crate::moduls::user::application::{ChangePasswordCommand, UpdateProfileCommand};
 use crate::moduls::user::domain::UserProfile;
-use crate::shared::{types::UserId, AppError};
+use crate::shared::AppError;
 use axum::{extract::State, Json};
 
 /// Response for successful operations with no data
@@ -15,58 +13,54 @@ pub struct EmptyResponse {
 
 /// GET /api/user/profile
 /// Get current user's profile (JSON)
+/// Requires JWT authentication
 pub async fn get_profile(
     State(state): State<AppState>,
-    // TODO: Extract user from JWT token
-    // AuthUser(user): AuthUser,
+    auth_user: AuthenticatedUser,
 ) -> Result<Json<UserProfile>, AppError> {
-    // TODO: Extract user_id from JWT claims
-    // let use_case = GetProfileUseCase::new(state.profile_repo);
-    // let profile = use_case.execute(user.id).await?;
-    // Ok(Json(profile))
+    // Use the authenticated user ID from JWT claims
+    let profile = state
+        .get_profile_use_case
+        .execute(auth_user.user_id)
+        .await?;
 
-    Err(AppError::Authentication(
-        "JWT authentication not yet implemented".into(),
-    ))
+    Ok(Json(profile))
 }
 
 /// PUT /api/user/profile
 /// Update current user's profile (JSON)
+/// Requires JWT authentication
 pub async fn update_profile(
     State(state): State<AppState>,
-    // TODO: Extract user from JWT token
-    // AuthUser(user): AuthUser,
+    auth_user: AuthenticatedUser,
     Json(payload): Json<UpdateProfileCommand>,
 ) -> Result<Json<UserProfile>, AppError> {
-    // TODO: Extract user_id from JWT claims
-    // let use_case = UpdateProfileUseCase::new(state.profile_repo);
-    // let profile = use_case.execute(user.id, payload).await?;
-    // Ok(Json(profile))
+    // Use the authenticated user ID from JWT claims
+    let profile = state
+        .update_profile_use_case
+        .execute(auth_user.user_id, payload)
+        .await?;
 
-    Err(AppError::Authentication(
-        "JWT authentication not yet implemented".into(),
-    ))
+    Ok(Json(profile))
 }
 
 /// PUT /api/user/password
 /// Change current user's password (JSON)
+/// Requires JWT authentication
 pub async fn change_password(
     State(state): State<AppState>,
-    // TODO: Extract user from JWT token
-    // AuthUser(user): AuthUser,
+    auth_user: AuthenticatedUser,
     Json(payload): Json<ChangePasswordCommand>,
 ) -> Result<Json<EmptyResponse>, AppError> {
-    // TODO: Extract user_id from JWT claims
-    // let use_case = ChangePasswordUseCase::new(state.user_repo);
-    // use_case.execute(user.id, payload).await?;
-    //
-    // Ok(Json(EmptyResponse {
-    //     message: "Password changed successfully".to_string(),
-    // }))
+    // Use the authenticated user ID from JWT claims
+    state
+        .change_password_use_case
+        .execute(auth_user.user_id, payload)
+        .await?;
 
-    Err(AppError::Authentication(
-        "JWT authentication not yet implemented".into(),
-    ))
+    Ok(Json(EmptyResponse {
+        message: "Password changed successfully".to_string(),
+    }))
 }
 
 #[cfg(test)]

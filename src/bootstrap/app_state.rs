@@ -34,6 +34,9 @@ pub struct AppState {
     /// CSRF secret for token generation
     pub csrf_secret: String,
 
+    /// Repositories (exposed for direct access when needed)
+    pub token_repo: Arc<PostgresTokenRepository>,
+
     /// Auth use cases
     pub register_user_use_case: Arc<RegisterUserUseCase>,
     pub login_user_use_case: Arc<LoginUserUseCase>,
@@ -108,6 +111,7 @@ impl AppState {
             jwt_secret,
             session_secret,
             csrf_secret,
+            token_repo,
             register_user_use_case,
             login_user_use_case,
             logout_user_use_case,

@@ -61,7 +61,7 @@ macro_rules! request_span {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     #[test]
     fn test_telemetry_init_development() {

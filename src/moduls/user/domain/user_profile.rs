@@ -7,6 +7,7 @@ use crate::shared::{
 /// Represents user profile information extending beyond authentication concerns
 #[derive(Debug, Clone, sqlx::FromRow, serde::Serialize)]
 pub struct UserProfile {
+    #[serde(rename = "id")]
     pub user_id: UserId,
     pub name: String,
     pub email: String,
@@ -90,10 +91,11 @@ impl UserProfile {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::shared::types::new_id;
 
     fn create_test_profile() -> UserProfile {
         UserProfile {
-            user_id: UserId::new_v7(),
+            user_id: new_id(),
             name: "Test User".to_string(),
             email: "test@example.com".to_string(),
             bio: None,

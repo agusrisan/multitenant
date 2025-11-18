@@ -171,7 +171,7 @@ impl SessionRepository for PostgresSessionRepository {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     // Integration tests would go here
     // Requires test database setup

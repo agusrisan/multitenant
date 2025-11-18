@@ -18,7 +18,7 @@ impl TestApp {
 
         // Use test database URL
         let database_url = std::env::var("DATABASE_URL")
-            .unwrap_or_else(|_| "postgres://postgres:password@localhost:5432/multitenant_test".to_string());
+            .unwrap_or_else(|_| "postgres://postgres:postgres@localhost:5432/multitenant_test".to_string());
 
         // Create database pool
         let db = sqlx::postgres::PgPoolOptions::new()
@@ -33,6 +33,12 @@ impl TestApp {
             .run(&db)
             .await
             .expect("Failed to run migrations");
+
+        // Clean database before each test to ensure isolation
+        sqlx::query!("TRUNCATE TABLE jwt_tokens, sessions, users RESTART IDENTITY CASCADE")
+            .execute(&db)
+            .await
+            .expect("Failed to clean database before test");
 
         // Create test configuration
         let config = Config {
@@ -126,6 +132,7 @@ impl TestApp {
     }
 
     /// Make a PUT request with JSON body
+    #[allow(dead_code)]
     pub async fn put_json<T: serde::Serialize>(
         &self,
         path: &str,
@@ -140,6 +147,7 @@ impl TestApp {
     }
 
     /// Make a DELETE request
+    #[allow(dead_code)]
     pub async fn delete(&self, path: &str) -> reqwest::Response {
         self.client
             .delete(&format!("{}{}", self.address, path))

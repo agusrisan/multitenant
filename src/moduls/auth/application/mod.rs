@@ -15,8 +15,6 @@ pub use login_user::{
     LoginUserUseCase,
     LoginWebCommand,
     LoginApiCommand,
-    WebLoginResult,
-    ApiLoginResult,
     AuthConfig,
 };
 pub use logout_user::LogoutUserUseCase;

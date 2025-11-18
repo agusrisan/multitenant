@@ -60,6 +60,7 @@ impl UpdateProfileUseCase {
 mod tests {
     use super::*;
     use crate::moduls::user::domain::UserProfile;
+    use crate::shared::types::new_id;
     use async_trait::async_trait;
 
     struct MockUserProfileRepository {
@@ -79,7 +80,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_update_profile_success() {
-        let user_id = UserId::new_v7();
+        let user_id = new_id();
         let profile = UserProfile {
             user_id,
             name: "Old Name".to_string(),
@@ -109,7 +110,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_update_profile_empty_name_fails() {
-        let user_id = UserId::new_v7();
+        let user_id = new_id();
         let profile = UserProfile {
             user_id,
             name: "Old Name".to_string(),

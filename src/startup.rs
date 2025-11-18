@@ -58,7 +58,7 @@ pub async fn build_app(state: AppState) -> Router {
         .nest("/api/auth", auth_api_routes())
         // Mount user module routes
         .nest("/web/user", user_web_routes())
-        .nest("/api/user", user_api_routes())
+        .nest("/api/user", user_api_routes(state.clone()))
         .with_state(state.clone())
         // Add security headers
         .layer(SetResponseHeaderLayer::overriding(

@@ -28,9 +28,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Database
 ```bash
-# Start PostgreSQL (Docker)
-docker-compose up -d postgres
-
 # Run migrations
 sqlx migrate run
 
@@ -49,11 +46,18 @@ cargo run
 # Build for production
 cargo build --release
 
-# Run tests
+# Run unit tests only (fast, no database required)
 cargo test
 
-# Run specific test module
-cargo test auth_tests
+# Run integration tests (requires database)
+cargo test -- --ignored --test-threads=1
+
+# Run ALL tests (unit + integration)
+cargo test -- --include-ignored --test-threads=1
+
+# Run specific integration test file
+cargo test --test auth_tests -- --ignored --test-threads=1
+cargo test --test user_tests -- --ignored --test-threads=1
 
 # Lint and check
 cargo clippy
@@ -294,21 +298,38 @@ Total estimated: 46-64 hours
 ### Unit Tests
 - Test domain entities and business rules in isolation
 - Test use cases with mocked repositories
-- Located alongside source files
+- Located alongside source files (`#[cfg(test)]` modules)
+- Fast execution, no external dependencies
+- **Run by default** with `cargo test`
 
 ### Integration Tests
-- Test full request/response cycles
+- Test full request/response cycles (HTTP endpoints)
 - Use test database (separate from development)
-- Located in `tests/` directory
+- Located in `tests/` directory (`tests/auth_tests.rs`, `tests/user_tests.rs`)
+- **Marked with `#[ignore]`** to prevent race conditions
+- Require `--test-threads=1` flag to run sequentially
+- Must run database migrations before testing
 
 ### Running Tests
 ```bash
-# All tests
+# Unit tests only (fast, default)
 cargo test
 
-# Specific module
+# Integration tests only (requires database)
+cargo test -- --ignored --test-threads=1
+
+# ALL tests (unit + integration)
+cargo test -- --include-ignored --test-threads=1
+
+# Specific module (unit tests)
 cargo test moduls::auth
 
-# With output
+# Specific integration test file
+cargo test --test auth_tests -- --ignored --test-threads=1
+
+# With verbose output
 cargo test -- --nocapture
 ```
+
+**Why are integration tests ignored?**
+Integration tests share the same test database and can have race conditions when run in parallel. By marking them with `#[ignore]`, developers can run fast unit tests during development (`cargo test`) and run slower integration tests separately when needed.
